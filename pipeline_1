@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Environment Check') {
+            steps {
+                echo 'Checking system information...'
+                // Running a simple shell command
+                sh 'uname -a'
+                sh 'whoami'
+            }
+        }
+
+        stage('Build/Processing') {
+            steps {
+                echo 'Running build scripts...'
+                // You can run multiple commands in one sh block
+                sh '''
+                    echo "Creating build directory..."
+                    mkdir -p build_output
+                    echo "Listing files:"
+                    ls -lh
+                '''
+            }
+        }
+
+        stage('Validation') {
+            steps {
+                // Jenkins will fail the stage if the shell command returns a non-zero exit code
+                sh 'echo "Starting validation..." && ./validate_script.sh || echo "Validation script missing, skipping..."'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline execution complete.'
+        }
+    }
+}
